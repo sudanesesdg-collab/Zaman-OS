@@ -1,6 +1,6 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
-    Let, Var, Fn, Return, If, Else, While, Loop, From, To,
+    Let, Var, Fn, Return, If, Else, While, Loop, From, To, Import,
     And, Or, Not,
     True, False,
     Int, Float, Str, Bool,
@@ -188,6 +188,7 @@ impl Lexer {
             "loop" => Token::Loop,
             "from" => Token::From,
             "to" => Token::To,
+            "import" => Token::Import,
             "and" => Token::And,
             "or" => Token::Or,
             "not" => Token::Not,

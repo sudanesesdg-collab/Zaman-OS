@@ -1,0 +1,7 @@
+import "commands.zaman"
+
+fn main() {
+    help_cmd()
+}
+
+main()

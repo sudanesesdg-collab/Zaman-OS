@@ -1,18 +1,7 @@
-let س = 10
-let ص = 20
-print(س + ص)
+import "math.zaman"
 
-fn جمع(a, b) {
-    return a + b
-}
-
-print(جمع(5, 7))
-print(جمع(100, 200))
-
-if س > 5 {
-    print(999)
-}
-
-loop i from 1 to 5 {
-    print(i)
-}
+print("=== اختبار الاستيراد ===")
+print("مربع 5:", مربع(5))
+print("مكعب 3:", مكعب(3))
+print("عاملي 5:", عاملي(5))
+print("عاملي 7:", عاملي(7))

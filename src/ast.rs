@@ -29,6 +29,7 @@ pub enum BinOp {
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
+    Import { path: String },
     Let { name: String, value: Expr },
     Var { name: String, value: Expr },
     Assign { name: String, value: Expr },

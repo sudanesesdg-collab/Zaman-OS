@@ -9,57 +9,80 @@ use lexer::Lexer;
 use parser::Parser;
 use interpreter::Interpreter;
 use compiler::Compiler;
+use ast::Stmt;
 use std::env;
 use std::fs;
+use std::path::Path;
+use std::collections::HashSet;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     
-    // الوضع 1: cargo run -- ملف.zaman  (ترجمة)
     if args.len() >= 2 {
         let file = &args[1];
         translate_file(file);
         return;
     }
     
-    // الوضع 2: cargo run  (تشغيل الكود المضمّن)
     run_embedded();
+}
+
+fn parse_file_recursive(path: &str, visited: &mut HashSet<String>) -> Result<Vec<Stmt>, String> {
+    if visited.contains(path) {
+        return Ok(Vec::new());
+    }
+    visited.insert(path.to_string());
+    
+    let code = fs::read_to_string(path)
+        .map_err(|e| format!("لا يمكن قراءة {}: {}", path, e))?;
+    
+    let mut lexer = Lexer::new(&code);
+    let tokens = lexer.tokenize()
+        .map_err(|e| format!("خطأ لغوي في {}: {}", path, e))?;
+    
+    let mut parser = Parser::new(tokens);
+    let stmts = parser.parse()
+        .map_err(|e| format!("خطأ نحوي في {}: {}", path, e))?;
+    
+    let mut result = Vec::new();
+    let base_dir = Path::new(path).parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| Path::new(".").to_path_buf());
+    
+    for stmt in stmts {
+        match stmt {
+            Stmt::Import { path: import_path } => {
+                let full_path = base_dir.join(&import_path);
+                let full_str = full_path.to_string_lossy().to_string();
+                let imported = parse_file_recursive(&full_str, visited)?;
+                result.extend(imported);
+            }
+            other => result.push(other),
+        }
+    }
+    
+    Ok(result)
 }
 
 fn translate_file(file: &str) {
     println!("=== مترجم زمان ===");
     println!("الملف: {}", file);
     
-    let code = match fs::read_to_string(file) {
-        Ok(c) => c,
+    let mut visited = HashSet::new();
+    let stmts = match parse_file_recursive(file, &mut visited) {
+        Ok(s) => s,
         Err(e) => {
-            eprintln!("❌ لا يمكن قراءة الملف: {}", e);
+            eprintln!("\n❌❌❌ خطأ: {}\n", e);
             return;
         }
     };
     
-    // 1. التحليل اللغوي
-    let mut lexer = Lexer::new(&code);
-    let tokens = match lexer.tokenize() {
-        Ok(t) => t,
-        Err(e) => { eprintln!("❌ خطأ لغوي: {}", e); return; }
-    };
-    
-    // 2. التحليل النحوي
-    let mut parser = Parser::new(tokens);
-    let stmts = match parser.parse() {
-        Ok(s) => s,
-        Err(e) => { eprintln!("❌ خطأ نحوي: {}", e); return; }
-    };
-    
-    // 3. الترجمة إلى C
     let mut compiler = Compiler::new();
     let c_code = match compiler.compile(&stmts) {
         Ok(c) => c,
         Err(e) => { eprintln!("❌ خطأ ترجمة: {}", e); return; }
     };
     
-    // 4. كتابة ملف C
     let c_file = format!("{}.c", file.trim_end_matches(".zaman"));
     if let Err(e) = fs::write(&c_file, &c_code) {
         eprintln!("❌ لا يمكن كتابة ملف C: {}", e);

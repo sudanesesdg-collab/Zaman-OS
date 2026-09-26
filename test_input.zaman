@@ -1,0 +1,7 @@
+fn main() {
+    print("اكتب شيئًا:")
+    let x = input()
+    print("كتبت:", x)
+}
+
+main()

@@ -21,6 +21,7 @@ impl Parser {
 
     fn parse_stmt(&mut self) -> Result<Stmt, String> {
         match self.peek() {
+            Token::Import => self.parse_import(),
             Token::Let => self.parse_let(),
             Token::Var => self.parse_var(),
             Token::Fn => self.parse_fn(),
@@ -47,6 +48,15 @@ impl Parser {
                 Ok(Stmt::Expr(expr))
             }
         }
+    }
+
+    fn parse_import(&mut self) -> Result<Stmt, String> {
+        self.next();
+        let path = match self.next() {
+            Token::Text(s) => s,
+            _ => return Err("متوقع مسار الملف بين علامتي تنصيص".to_string()),
+        };
+        Ok(Stmt::Import { path })
     }
 
     fn find_close_bracket(&self) -> Option<usize> {
@@ -305,7 +315,6 @@ impl Parser {
     }
 
     fn parse_primary(&mut self) -> Result<Expr, String> {
-        // دعم الأرقام السالبة: -5
         if self.peek() == &Token::Minus {
             self.next();
             match self.next() {

@@ -1,0 +1,15 @@
+fn مربع(x) {
+    return x * x
+}
+
+fn مكعب(x) {
+    return x * x * x
+}
+
+fn عاملي(n) {
+    var result = 1
+    loop i from 1 to n {
+        result = result * i
+    }
+    return result
+}

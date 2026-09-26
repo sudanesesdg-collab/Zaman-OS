@@ -32,6 +32,7 @@ impl Interpreter {
 
     fn exec(&mut self, stmt: &Stmt) -> Result<Flow, String> {
         match stmt {
+            Stmt::Import { .. } => Ok(Flow::Normal),
             Stmt::Let { name, value } => {
                 let val = self.eval(value)?;
                 self.env.insert(name.clone(), val);

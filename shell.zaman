@@ -1,25 +1,25 @@
 import "commands.zaman"
-
 fn main() {
-    print("Zaman OS Terminal v0.2")
-    print("اكتب help")
+    print("Zaman OS v0.2")
     var running = 1
     while running == 1 {
         print("zaman>")
         let cmd = input()
         if cmd == "exit" {
-            print("مع السلامة")
             running = 0
-        } else if cmd == "help" {
+        }
+        if cmd == "help" {
             help_cmd()
-        } else if cmd == "time" {
+        }
+        if cmd == "time" {
             time_cmd()
-        } else if cmd == "info" {
+        }
+        if cmd == "info" {
             info_cmd()
-        } else {
-            print("غير معروف:", cmd)
+        }
+        if cmd == "clear" {
+            clear_cmd()
         }
     }
 }
-
 main()

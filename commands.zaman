@@ -1,25 +1,15 @@
 fn help_cmd() {
-    print("الأوامر المتاحة:")
-    print("  help   - القائمة")
-    print("  clear  - مسح")
-    print("  time   - الوقت")
-    print("  info   - معلومات")
-    print("  exit   - خروج")
+    print("help menu")
 }
 
 fn time_cmd() {
-    print("الوقت:", الوقت())
+    print("time:", الوقت())
 }
 
 fn info_cmd() {
     print("Zaman OS v0.2")
-    print("نظام زمان")
 }
 
 fn clear_cmd() {
-    var i = 0
-    while i < 5 {
-        print(" ")
-        i = i + 1
-    }
+    print(" ")
 }

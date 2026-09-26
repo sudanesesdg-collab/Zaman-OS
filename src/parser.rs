@@ -54,7 +54,7 @@ impl Parser {
         self.next();
         let path = match self.next() {
             Token::Text(s) => s,
-            _ => return Err("متوقع مسار الملف بين علامتي تنصيص".to_string()),
+            _ => return Err("expected file path".to_string()),
         };
         Ok(Stmt::Import { path })
     }
@@ -79,13 +79,13 @@ impl Parser {
     fn parse_index_assign(&mut self, close_pos: usize) -> Result<Stmt, String> {
         let array = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم مصفوفة".to_string()),
+            _ => return Err("expected array name".to_string()),
         };
         self.next();
         let index = self.parse_expr()?;
         while self.pos <= close_pos { self.next(); }
         if self.next() != Token::Assign {
-            return Err("متوقع =".to_string());
+            return Err("expected =".to_string());
         }
         let value = self.parse_expr()?;
         Ok(Stmt::IndexAssign { array, index, value })
@@ -95,10 +95,10 @@ impl Parser {
         self.next();
         let name = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم متغير".to_string()),
+            _ => return Err("expected var name".to_string()),
         };
         if self.next() != Token::Assign {
-            return Err("متوقع =".to_string());
+            return Err("expected =".to_string());
         }
         let value = self.parse_expr()?;
         Ok(Stmt::Let { name, value })
@@ -108,10 +108,10 @@ impl Parser {
         self.next();
         let name = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم متغير".to_string()),
+            _ => return Err("expected var name".to_string()),
         };
         if self.next() != Token::Assign {
-            return Err("متوقع =".to_string());
+            return Err("expected =".to_string());
         }
         let value = self.parse_expr()?;
         Ok(Stmt::Var { name, value })
@@ -120,7 +120,7 @@ impl Parser {
     fn parse_assign(&mut self) -> Result<Stmt, String> {
         let name = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم متغير".to_string()),
+            _ => return Err("expected var name".to_string()),
         };
         self.next();
         let value = self.parse_expr()?;
@@ -131,22 +131,22 @@ impl Parser {
         self.next();
         let name = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم دالة".to_string()),
+            _ => return Err("expected function name".to_string()),
         };
         if self.next() != Token::LParen {
-            return Err("متوقع (".to_string());
+            return Err("expected (".to_string());
         }
         let mut params = Vec::new();
         while self.peek() != &Token::RParen {
             match self.next() {
                 Token::Ident(s) => params.push(s),
-                _ => return Err("متوقع اسم معامل".to_string()),
+                _ => return Err("expected param name".to_string()),
             }
             if self.peek() == &Token::Comma { self.next(); }
         }
         self.next();
         if self.next() != Token::LBrace {
-            return Err("متوقع {".to_string());
+            return Err("expected {".to_string());
         }
         let body = self.parse_block()?;
         Ok(Stmt::Fn { name, params, body })
@@ -156,14 +156,14 @@ impl Parser {
         self.next();
         let condition = self.parse_expr()?;
         if self.next() != Token::LBrace {
-            return Err("متوقع {".to_string());
+            return Err("expected { after if".to_string());
         }
         let then_body = self.parse_block()?;
         let mut else_body = Vec::new();
         if self.peek() == &Token::Else {
             self.next();
             if self.next() != Token::LBrace {
-                return Err("متوقع {".to_string());
+                return Err("expected { after else".to_string());
             }
             else_body = self.parse_block()?;
         }
@@ -174,18 +174,18 @@ impl Parser {
         self.next();
         let var = match self.next() {
             Token::Ident(s) => s,
-            _ => return Err("متوقع اسم متغير".to_string()),
+            _ => return Err("expected loop var".to_string()),
         };
         if self.next() != Token::From {
-            return Err("متوقع from".to_string());
+            return Err("expected from".to_string());
         }
         let from = self.parse_expr()?;
         if self.next() != Token::To {
-            return Err("متوقع to".to_string());
+            return Err("expected to".to_string());
         }
         let to = self.parse_expr()?;
         if self.next() != Token::LBrace {
-            return Err("متوقع {".to_string());
+            return Err("expected {".to_string());
         }
         let body = self.parse_block()?;
         Ok(Stmt::Loop { var, from, to, body })
@@ -195,7 +195,7 @@ impl Parser {
         self.next();
         let condition = self.parse_expr()?;
         if self.next() != Token::LBrace {
-            return Err("متوقع {".to_string());
+            return Err("expected {".to_string());
         }
         let body = self.parse_block()?;
         Ok(Stmt::While { condition, body })
@@ -207,7 +207,7 @@ impl Parser {
             stmts.push(self.parse_stmt()?);
         }
         if self.next() != Token::RBrace {
-            return Err("متوقع }".to_string());
+            return Err(format!("expected 2xcurly at pos {} - got {:?}", self.pos, self.peek()));
         }
         Ok(stmts)
     }
@@ -319,7 +319,7 @@ impl Parser {
             self.next();
             match self.next() {
                 Token::Number(n) => return Ok(Expr::Number(-n)),
-                t => return Err(format!("متوقع رقم بعد -، وُجد {:?}", t)),
+                t => return Err(format!("expected number after - , got {:?}", t)),
             }
         }
         
@@ -343,7 +343,7 @@ impl Parser {
                     self.next();
                     let index = self.parse_expr()?;
                     if self.next() != Token::RBracket {
-                        return Err("متوقع ]".to_string());
+                        return Err("expected ]".to_string());
                     }
                     return Ok(Expr::Index {
                         array: Box::new(Expr::Ident(name)),
@@ -355,7 +355,7 @@ impl Parser {
             Token::LParen => {
                 let expr = self.parse_expr()?;
                 if self.next() != Token::RParen {
-                    return Err("متوقع )".to_string());
+                    return Err("expected )".to_string());
                 }
                 Ok(expr)
             }
@@ -368,7 +368,7 @@ impl Parser {
                 self.next();
                 Ok(Expr::Array(items))
             }
-            t => Err(format!("متوقع قيمة، وُجد {:?}", t)),
+            t => Err(format!("expected value, got {:?}", t)),
         }
     }
 

@@ -1,0 +1,18 @@
+let س = 10
+let ص = 20
+print(س + ص)
+
+fn جمع(a, b) {
+    return a + b
+}
+
+print(جمع(5, 7))
+print(جمع(100, 200))
+
+if س > 5 {
+    print(999)
+}
+
+loop i from 1 to 5 {
+    print(i)
+}

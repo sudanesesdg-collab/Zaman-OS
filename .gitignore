@@ -1,0 +1,6 @@
+/target
+*.c
+test_bin
+output
+*.o
+*.bin
